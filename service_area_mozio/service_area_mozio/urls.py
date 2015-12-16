@@ -24,12 +24,17 @@ urlpatterns = [
     url(
         r'^service-area/$',
         TemplateView.as_view(template_name="service_area.html"),
-        name='service_area'
+        name='service_area',
     ),
     url(
         r'^contains-location/$',
         TemplateView.as_view(template_name="contains_location.html"),
-        name='contains_location'
+        name='contains_location',
+    ),
+    url(
+        r'^shapes/',
+        include('service_area_mozio.shapes.urls'),
+        namespace='shapes',
     ),
 ]
 
