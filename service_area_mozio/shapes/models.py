@@ -7,8 +7,9 @@ from django.db import models
 class Polygon(models.Model):
 
     """A Polygon is a plane figure where three or more vertices are bound"""
-    date_created = models.DateTimeField(auto_now_add=False)
-    date_updated = models.DateTimeField(auto_now=False)
+    name = models.CharField(null=True, max_length=50)
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_updated = models.DateTimeField(auto_now=True)
 
 
 class Vertex(models.Model):
