@@ -4,10 +4,43 @@
 
 {% block content %}
     <div id="map"></div>
+    <div id="info"></div>
 {% endblock %}
 
 {% block bootstrap3_extra_script %}
 <script>
+var selectedShape;
+
+function clearSelection() {
+  if (selectedShape) {
+    selectedShape.setEditable(false);
+    selectedShape = null;
+  }
+  document.getElementById('info').innerHTML = "";
+}
+
+function setSelection(shape) {
+  clearSelection();
+  selectedShape = shape;
+  shape.setEditable(true);
+  getPolygonCoords(shape);
+}
+
+function deleteSelectedShape() {
+  if (selectedShape) {
+    selectedShape.setMap(null);
+  }
+}
+
+function getPolygonCoords(shape) {
+    var len = shape.getPath().getLength();
+    var htmlStr = "";
+    for (var i = 0; i < len; i++) {
+        htmlStr += shape.getPath().getAt(i).toUrlValue(5) + "<br>";
+    }
+    document.getElementById('info').innerHTML = htmlStr;
+}
+
 function initMap() {
   var map = new google.maps.Map(document.getElementById('map'), {
     center: {lat: -34.397, lng: 150.644},
@@ -15,7 +48,7 @@ function initMap() {
   });
 
   var drawingManager = new google.maps.drawing.DrawingManager({
-    drawingMode: google.maps.drawing.OverlayType.MARKER,
+    drawingMode: null,
     drawingControl: true,
     drawingControlOptions: {
       position: google.maps.ControlPosition.TOP_CENTER,
@@ -23,16 +56,39 @@ function initMap() {
         google.maps.drawing.OverlayType.POLYGON
       ]
     },
-    circleOptions: {
-      fillColor: '#ffff00',
-      fillOpacity: 1,
-      strokeWeight: 5,
-      clickable: false,
+    polygonOptions: {
+      draggable: true,
       editable: true,
-      zIndex: 1
+      zIndex: 1,
+      geodesic: true
     }
   });
+  google.maps.event.addListener(drawingManager, 'overlaycomplete', function(e) {
+    if (e.type != google.maps.drawing.OverlayType.MARKER) {
+      // Switch back to non-drawing mode after drawing a shape.
+      drawingManager.setDrawingMode(null);
+    }
+    var newShape = e.overlay;
+    newShape.type = e.type;
+    google.maps.event.addListener(newShape, 'click', function() {
+      setSelection(newShape);
+    });
+    setSelection(newShape);
+    // Get movements of the shape
+    google.maps.event.addListener(newShape, 'drag', function(e) {
+      getPolygonCoords(newShape);
+    });
+    // Get changes on the shape when "shrinking"
+    google.maps.event.addListener(newShape.getPath(), 'set_at', function(e) {
+      getPolygonCoords(newShape);
+    });
+    // and when "growing"
+    google.maps.event.addListener(newShape.getPath(), 'insert_at', function(e) {
+      getPolygonCoords(newShape);
+    });
+  });
   drawingManager.setMap(map);
+  google.maps.event.addListener(map, 'click', clearSelection);
 }
 </script>
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCG-m2MOrO0REyi3pZjsuKfcFOfrcTOXEQ&signed_in=true&libraries=drawing&callback=initMap"
