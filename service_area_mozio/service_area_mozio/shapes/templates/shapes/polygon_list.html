@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+
+{% block title %}Polygon List{% endblock %}
+
+{% block content %}
+    <ul>
+    {% for object in object_list %}
+        <li>{{ object }}</li>
+    {% empty %}
+        <li>
+            <a href="{% url 'service_area'}">
+                {% trans "Create some shapes first" %}
+            </a>
+        </li>
+    {% endfor %}
+    </ul>
+{% endblock %}
