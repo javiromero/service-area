@@ -12,7 +12,8 @@ class ValidPolygonManager(models.Manager):
 
     def get_queryset(self):
         qs = super(ValidPolygonManager, self).get_queryset()
-        qs_counted = qs.annotate(sides=Count('vertex')).filter(sides__gte=3)
+        qs_counted = qs.annotate(vertices=Count('vertex'))
+        qs_counted = qs_counted.filter(vertices__gte=3)
         return qs_counted
 
 
