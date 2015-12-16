@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
-from django.test import TestCase
+from django.test import (
+    Client,
+    TestCase,
+)
 from service_area_mozio.shapes.models import (
     Polygon,
     Vertex,
@@ -33,3 +36,11 @@ class PolygonTestCase(TestCase):
         triangle = Polygon.everything.get(name='triangle')
         self.assertLess(line.sides, 3)
         self.assertGreaterEqual(triangle.sides, 3)
+
+    def test_view_list(self):
+        """Test the list polygon view"""
+        client = Client()
+        response = client.get('/shapes/')
+        qs = Polygon.objects.all()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(list(response.context['object_list']), list(qs))
