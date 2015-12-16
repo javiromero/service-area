@@ -9,6 +9,7 @@ from django.utils.translation import ugettext as _
 class ValidPolygonManager(models.Manager):
 
     """Remove invalid (<3 vertices) polygons from queryset"""
+
     def get_queryset(self):
         qs = super(ValidPolygonManager, self).get_queryset()
         qs_counted = qs.annotate(sides=Count('vertex')).filter(sides__gte=3)

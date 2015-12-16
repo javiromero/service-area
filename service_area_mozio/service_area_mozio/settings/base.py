@@ -37,7 +37,7 @@ INSTALLED_APPS = (
 
     'bootstrap3',
 
-    'shapes',
+    'service_area_mozio.shapes',
 )
 
 MIDDLEWARE_CLASSES = (
