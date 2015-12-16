@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.shortcuts import render
 from django.views.generic import (
+    CreateView,
     DetailView,
     ListView,
     UpdateView,
@@ -16,4 +17,10 @@ from service_area_mozio.shapes.models import (
 class PolygonListView(ListView):
 
     """List all valid registered polygons"""
+    model = Polygon
+
+
+class PolygonCreateView(CreateView):
+
+    """Create a new polygon"""
     model = Polygon

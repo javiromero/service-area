@@ -37,10 +37,28 @@ class PolygonTestCase(TestCase):
         self.assertLess(line.sides, 3)
         self.assertGreaterEqual(triangle.sides, 3)
 
-    def test_view_list(self):
+    def test_polygon_view_list(self):
         """Test the list polygon view"""
         client = Client()
         response = client.get('/shapes/')
         qs = Polygon.objects.all()
         self.assertEqual(response.status_code, 200)
         self.assertEqual(list(response.context['object_list']), list(qs))
+
+    def test_polygon_view_create(self):
+        """Test the create polygon view"""
+        pre_count = Polygon.objects.all().count()
+        client = Client()
+        response = client.post(
+            '/shapes/create/',
+            {
+                'name': 'test',
+                'vertices[]': [
+                    ('10.10', '100.100'),
+                    ('20.20', '200.200'),
+                    ('30.30', '300.300'),
+                ]
+            }
+        )
+        post_count = Polygon.objects.all().count()
+        self.assertGreater(post_count, pre_count)

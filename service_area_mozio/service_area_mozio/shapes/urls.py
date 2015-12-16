@@ -9,4 +9,9 @@ urlpatterns = [
         view=views.PolygonListView.as_view(),
         name='list',
     ),
+    url(
+        r'^create/$',
+        view=views.PolygonListView.as_view(),
+        name='list',
+    ),
 ]
