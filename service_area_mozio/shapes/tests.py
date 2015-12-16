@@ -19,7 +19,11 @@ class PolygonTestCase(TestCase):
         Vertex.objects.create(lat=3, lon=3, polygon=triangle)
 
     def test_min_vertices(self):
-        line = Polygon.objects.get(name='line')
-        triangle = Polygon.objects.get(name='triangle')
-        self.assertGreater(line.sides, 3)
+        # test using the default Manager to get invalid polygons
+        line = Polygon.everything.get(name='line')
+        triangle = Polygon.everything.get(name='triangle')
+        self.assertLess(line.sides, 3)
         self.assertGreaterEqual(triangle.sides, 3)
+        # test the validating manager too
+        qs = Polygon.objects.all()
+        self.assertEqual(qs.count(), 1)
