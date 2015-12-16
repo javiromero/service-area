@@ -18,9 +18,15 @@
         </div>
         <div id="navbar" class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
-            <li class="active"><a href="{% url 'home' %}">home</a></li>
-            <li><a href="{% url 'service_area' %}">service areas</a></li>
-            <li><a href="{% url 'contains_location' %}">contains location</a></li>
+            <li><a href="{% url 'home' %}">home</a></li>
+            {% url 'service_area' as service_area_url %}
+            <li {% if request.path = service_area_url %}class="active"{% endif %}>
+                <a href="{{ service_area_url }}">service areas</a>
+            </li>
+            {% url 'contains_location' as contains_location_url %}
+            <li {% if request.path = contains_location_url %}class="active"{% endif %}>
+                <a href="{{ contains_location_url }}">contains location</a>
+            </li>
           </ul>
         </div><!--/.nav-collapse -->
       </div>

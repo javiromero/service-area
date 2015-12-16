@@ -1,8 +1,10 @@
 {% extends "base.html" %}
+{% load i18n %}
 
 {% block title %}Service Area{% endblock %}
 
 {% block content %}
+    <p>{% trans "Select the polygon figure on the map and click anywhere on it to start drawing a new service area." %}</p>
     <div id="map"></div>
     <div id="info"></div>
 {% endblock %}
