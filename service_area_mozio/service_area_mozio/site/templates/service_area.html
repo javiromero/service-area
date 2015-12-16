@@ -4,9 +4,18 @@
 {% block title %}Service Area{% endblock %}
 
 {% block content %}
-    <p>{% trans "Select the polygon figure on the map and click anywhere on it to start drawing a new service area." %}</p>
+    <p>
+      {% trans "Select the polygon figure on the map and click anywhere on it to start drawing a new service area. Click on the starting point to end the area." %}
+    </p>
+    <p>
+      {% trans "You can move the areas around or edit them by clicking on them and moving its vertexs. Click on the map to deselect the areas." %}
+    </p>
     <div id="map"></div>
-    <div id="info"></div>
+    <div id="toolbar">
+      <div id="info"></div>
+      <button class="btn btn-primary" disabled="disabled" id="save-button">Save service area</button>
+      <button class="btn btn-danger" disabled="disabled" id="delete-button">Delete service area</button>
+    </div>
 {% endblock %}
 
 {% block bootstrap3_extra_script %}
@@ -19,6 +28,8 @@ function clearSelection() {
     selectedShape = null;
   }
   document.getElementById('info').innerHTML = "";
+  document.getElementById('save-button').setAttribute('disabled', 'disabled');
+  document.getElementById('delete-button').setAttribute('disabled', 'disabled');
 }
 
 function setSelection(shape) {
@@ -26,6 +37,8 @@ function setSelection(shape) {
   selectedShape = shape;
   shape.setEditable(true);
   getPolygonCoords(shape);
+  document.getElementById('save-button').removeAttribute('disabled');
+  document.getElementById('delete-button').removeAttribute('disabled');
 }
 
 function deleteSelectedShape() {
