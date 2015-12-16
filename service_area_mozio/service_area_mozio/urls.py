@@ -33,8 +33,10 @@ urlpatterns = [
     ),
     url(
         r'^shapes/',
-        include('service_area_mozio.shapes.urls'),
-        namespace='shapes',
+        include(
+            'service_area_mozio.shapes.urls',
+            namespace='shapes',
+        ),
     ),
 ]
 
