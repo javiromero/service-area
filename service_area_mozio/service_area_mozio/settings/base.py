@@ -56,7 +56,9 @@ ROOT_URLCONF = 'service_area_mozio.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(SITE_DIR, 'templates'),],
+        'DIRS': [
+            os.path.join(SITE_DIR, 'templates'),
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
