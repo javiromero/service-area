@@ -33,29 +33,25 @@ def create_polygon(request):
         allowed_methods = ['POST', ]
         return HttpResponseNotAllowed(allowed_methods)
 
-    response_dict = {
-        'success': False,
-        'msg': '',
-    }
     name = request.POST.get('name')
     vertices = request.POST.getlist('vertices[]')
     if len(vertices) < 3:
-        success = False
         msg = _(
             u'Not enought vertices.'
             u' A valid service area should have 3 or more'
         )
+        response = HttpResponse(msg)
+        response.status_code = 406
     else:
-        shape = Polygon.objects.create(name=name)
+        shape, created = Polygon.objects.get_or_create(name=name)
         for each in vertices:
             lat, lon = each.split(',')
             shape.vertices.create(lat=lat, lon=lon)
-        success = True
-        msg = _(u'Service area created')
+        if not created:
+            msg = _(u'Service area updated')
+        else:
+            msg = _(u'Service area created')
+        response = HttpResponse(msg)
+        response.status_code = 201
 
-    response_dict['success'] = success
-    response_dict['msg'] = msg
-    return HttpResponse(
-        json.dumps(response_dict),
-        content_type='application/json'
-    )
+    return response
