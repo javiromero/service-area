@@ -11,7 +11,7 @@ urlpatterns = [
     ),
     url(
         r'^create/$',
-        view=views.PolygonListView.as_view(),
-        name='list',
+        view=views.create_polygon,
+        name='create',
     ),
 ]
