@@ -37,6 +37,9 @@ class Polygon(models.Model):
     objects = ValidPolygonManager()
     everything = models.Manager()
 
+    class Meta:
+        ordering = ['-date_created']
+
 
 class Vertex(models.Model):
 
