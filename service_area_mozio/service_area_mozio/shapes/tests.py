@@ -53,11 +53,11 @@ class PolygonTestCase(TestCase):
             '/shapes/create/',
             {
                 'name': 'test',
-                'vertices[]': [
-                    ('10.10', '100.100'),
-                    ('20.20', '200.200'),
-                    ('30.30', '300.300'),
-                ]
+                'vertices[]': (
+                    '10.10, -100.100',
+                    '20.20, -200.200',
+                    '30.30, -300.300',
+                )
             }
         )
         post_count = Polygon.objects.all().count()
