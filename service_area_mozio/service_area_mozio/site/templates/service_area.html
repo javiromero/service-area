@@ -4,17 +4,31 @@
 {% block title %}Service Area{% endblock %}
 
 {% block content %}
-    <p>
-      {% trans "Select the polygon figure on the map and click anywhere on it to start drawing a new service area. Click on the starting point to end the area." %}
-    </p>
-    <p>
-      {% trans "You can move the areas around or edit them by clicking on them and moving its vertices. Click on the map to deselect the areas." %}
-    </p>
-    <div id="map"></div>
-    <div id="toolbar">
-      <div id="info"></div>
-      <button class="btn btn-primary" disabled="disabled" id="save-button">Save service area</button>
-      <button class="btn btn-danger" disabled="disabled" id="delete-button">Delete service area</button>
+    <div class="row">
+      <div class="col-md-8">
+        <p>
+          {% trans "Select the polygon figure on the map and click anywhere on it to start drawing a new service area. Click on the starting point to end the area." %}
+        </p>
+        <p>
+          {% trans "You can move the areas around or edit them by clicking on them and moving its vertices. Click on the map to deselect the areas." %}
+        </p>
+      </div>
+      <div class="col-md-4">
+        <p>
+          {% trans "Draw a polygon and its vertices' coordinates will show up here" %}
+        </p>
+      </div>
+      <div id="map" class="col-md-8"></div>
+      <div id="toolbar" class="col-md-4">
+        <div class="row">
+          <div id="info" class="col-md-6">
+          </div>
+          <div class="col-md-6">
+            <button class="btn btn-primary btn-block" disabled="disabled" id="save-button">{% trans "Save service area" %}</button>
+            <button class="btn btn-danger btn-block" disabled="disabled" id="delete-button">{% trans "Delete service area" %}</button>
+          </div>
+        </div>
+      </div>
     </div>
 {% endblock %}
 
@@ -27,6 +41,7 @@ function clearSelection() {
     selectedShape.setEditable(false);
     selectedShape = null;
   }
+  // Direct DOM manipulation examples
   document.getElementById('info').innerHTML = "";
   document.getElementById('save-button').setAttribute('disabled', 'disabled');
   document.getElementById('delete-button').setAttribute('disabled', 'disabled');
@@ -36,7 +51,7 @@ function setSelection(shape) {
   clearSelection();
   selectedShape = shape;
   shape.setEditable(true);
-  getPolygonCoords(shape);
+  drawPolygonCoords(shape);
   document.getElementById('save-button').removeAttribute('disabled');
   document.getElementById('delete-button').removeAttribute('disabled');
 }
@@ -47,13 +62,28 @@ function deleteSelectedShape() {
   }
 }
 
+function getPolygonCoordsList(shape) {
+    var len = shape.getPath().getLength();
+    var coordArray = new Array();
+    for (var i = 0; i < len; i++) {
+        coordArray.push(shape.getPath().getAt(i).toUrlValue(5));
+    }
+    return coordArray;
+}
+
 function getPolygonCoords(shape) {
     var len = shape.getPath().getLength();
     var htmlStr = "";
     for (var i = 0; i < len; i++) {
         htmlStr += shape.getPath().getAt(i).toUrlValue(5) + "<br>";
     }
-    document.getElementById('info').innerHTML = htmlStr;
+    return htmlStr;
+}
+
+function drawPolygonCoords(shape) {
+  htmlStr = getPolygonCoords(shape);
+  document.getElementById('info').innerHTML = htmlStr;
+
 }
 
 function initMap() {
@@ -91,20 +121,73 @@ function initMap() {
     setSelection(newShape);
     // Get movements of the shape
     google.maps.event.addListener(newShape, 'drag', function(e) {
-      getPolygonCoords(newShape);
+      drawPolygonCoords(newShape);
     });
     // Get changes on the shape when "shrinking"
     google.maps.event.addListener(newShape.getPath(), 'set_at', function(e) {
-      getPolygonCoords(newShape);
+      drawPolygonCoords(newShape);
     });
     // and when "growing"
     google.maps.event.addListener(newShape.getPath(), 'insert_at', function(e) {
-      getPolygonCoords(newShape);
+      drawPolygonCoords(newShape);
     });
   });
   drawingManager.setMap(map);
   google.maps.event.addListener(map, 'click', clearSelection);
 }
+
+Array.prototype.containsSubString = function( text ){
+    for ( var i = 0; i < this.length; ++i )
+    {
+        if ( this[i].toString().indexOf( text ) != -1 )
+            return i;
+    }
+    return -1;
+}
+
+function getSelectedShapeName(){
+  var properties = [i for(i in selectedShape)];
+  var index = properties.containsSubString('closure_uid');
+  var name = properties[index];
+  return name;
+}
+
+function saveSelection(){
+  var urlCreate = "{% url 'shapes:create' %}";
+  var shape = {
+    'name': getSelectedShapeName(),
+    'vertices': getPolygonCoordsList(selectedShape)
+  };
+  $.post(urlCreate, shape)
+    .success(function(data){
+      console.log(data);
+      $('#notifications').append(
+        '<div id="alert-shape" class="alert alert-info">'+
+          '<button type="button" class="close" data-dismiss="alert">&times;</button>'+
+          '<strong>'+data+'</strong>'+
+        '</div>'
+      );
+      $("#alert-shape").fadeOut(5000, function(){
+        this.remove();
+      });
+    })
+    .fail(function(data){
+      console.log(data);
+      $('#notifications').append(
+        '<div id="alert-shape" class="alert alert-danger">'+
+          '<button type="button" class="close" data-dismiss="alert">&times;</button>'+
+          '<strong>'+data.responseText+'</strong>'+
+        '</div>'
+      );
+    });
+}
+$('#save-button').on('click', saveSelection);
+
+function deleteSelection(){
+  deleteSelectedShape();
+  clearSelection();
+}
+$('#delete-button').on('click', deleteSelection);
 </script>
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCG-m2MOrO0REyi3pZjsuKfcFOfrcTOXEQ&signed_in=true&libraries=drawing&callback=initMap"
          async defer></script>
