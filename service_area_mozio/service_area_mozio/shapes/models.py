@@ -12,8 +12,8 @@ class ValidPolygonManager(models.Manager):
 
     def get_queryset(self):
         qs = super(ValidPolygonManager, self).get_queryset()
-        qs_counted = qs.annotate(vertices=Count('vertex'))
-        qs_counted = qs_counted.filter(vertices__gte=3)
+        qs_counted = qs.annotate(num_vertices=Count('vertices'))
+        qs_counted = qs_counted.filter(num_vertices__gte=3)
         return qs_counted
 
 
@@ -26,11 +26,11 @@ class Polygon(models.Model):
 
     @property
     def sides(self):
-        return self.vertex_set.count()
+        return self.vertices.count()
 
     def __str__(self):
         str_ = ''
-        for vertex in self.vertex_set.all():
+        for vertex in self.vertices.all():
             str_ += '\n%s' % str(vertex)
         return str_
 
@@ -43,7 +43,7 @@ class Vertex(models.Model):
     """A vertex is a corner of a polygon"""
     lat = models.FloatField()
     lon = models.FloatField()
-    polygon = models.ForeignKey(Polygon)
+    polygon = models.ForeignKey(Polygon, related_name='vertices')
 
     def __str__(self):
         str_ = _("Lat: %(lat)s - Lon: %(lon)s" % {
