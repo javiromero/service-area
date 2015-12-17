@@ -1,11 +1,9 @@
 {% extends 'bootstrap.html' %}
 
-{% load url from future %}
-
 {% load bootstrap3 %}
 
 {% block bootstrap3_content %}
-    <nav class="navbar navbar-inverse navbar-fixed-top">
+    <nav class="navbar navbar-inverse navbar-static-top">
       <div class="container">
         <div class="navbar-header">
           <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
@@ -31,15 +29,13 @@
         </div><!--/.nav-collapse -->
       </div>
     </nav>
-    <br/><br/>
-    <div class="container">
-        <div class="">
-            <h1>{% block title %}(no title){% endblock %}</h1>
+    <div id="notifications" class="container"></div>
+    <div id="content" class="container">
+        <h1>{% block title %}(no title){% endblock %}</h1>
 
-            {% bootstrap_messages %}
+        {% bootstrap_messages %}
 
-            {% block content %}(no content){% endblock %}
-        </div>
+        {% block content %}(no content){% endblock %}
     </div>
 
 {% endblock %}
