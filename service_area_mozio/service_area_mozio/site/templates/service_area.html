@@ -17,17 +17,32 @@
       <div id="map" class="col-md-8"></div>
       <div id="toolbar" class="col-md-4">
         <div class="row">
-          <div class="col-md-6">
-            <div>{% trans "Latitude" %} | {% trans "Longitude" %}</div>
+          <div class="col-md-12">
+            <table id="" class="table table-striped">
+              <thead>
+                <tr>
+                  <th>{% trans "Latitude" %}</th>
+                  <th>{% trans "Longitude" %}</th>
+                </tr>
+              </thead>
+              <tbody id="info">
+                <tr>
+                  <td colspan="2">
+                    {% trans "Draw a polygon and its vertices' coordinates will show up here" %}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
             <div id="info">
-              <p>
-                {% trans "Draw a polygon and its vertices' coordinates will show up here" %}
-              </p>
             </div>
           </div>
-          <div class="col-md-6">
-            <button class="btn btn-primary btn-block" disabled="disabled" id="save-button">{% trans "Save service area" %}</button>
-            <button class="btn btn-danger btn-block" disabled="disabled" id="delete-button">{% trans "Delete service area" %}</button>
+          <div class="col-md-12">
+            <div class="col-md-6">
+              <button class="btn btn-primary btn-block" disabled="disabled" id="save-button">{% trans "Save service area" %}</button>
+            </div>
+            <div class="col-md-6">
+              <button class="btn btn-danger btn-block" disabled="disabled" id="delete-button">{% trans "Delete service area" %}</button>
+            </div>
           </div>
           <div class="col-md-12">
             <h3>
@@ -82,7 +97,8 @@ function getPolygonCoords(shape) {
     var len = shape.getPath().getLength();
     var htmlStr = "";
     for (var i = 0; i < len; i++) {
-        htmlStr += shape.getPath().getAt(i).toUrlValue(5) + "<br>";
+      coords = shape.getPath().getAt(i).toJSON();
+      htmlStr += '<tr><td>'+coords.lat+'</td><td>'+coords.lng+'</td></tr>';
     }
     return htmlStr;
 }
