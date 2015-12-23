@@ -239,9 +239,27 @@ class JSONSerializer():
 
     def handle_simple(self, simple):
         """ Called to handle values that can be handled via simplejson """
-        self.stream.write(unicode(dumps(simple)))
+        if simple in ('', 'none', 'None', 'NONE',
+                      u'', u'none', u'None', u'NONE'):
+            self.handle_none(simple)
+        else:
+            self.stream.write(unicode(dumps(simple)))
+
+    def handle_none(self, none):
+        """ Called to handle None values """
+        self.stream.write(unicode(''))
 
     def getvalue(self):
         """Return the fully serialized object or None"""
         if callable(getattr(self.stream, 'getvalue', None)):
             return self.stream.getvalue()
+
+
+class JSONjQuerySerializer(JSONSerializer):
+
+    """
+    Redefine handle_none to return null to jquery ajax calls
+    """
+
+    def handle_none(self, none):
+        self.stream.write(u'null')
