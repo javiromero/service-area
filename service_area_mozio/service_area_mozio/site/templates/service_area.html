@@ -13,19 +13,26 @@
           {% trans "You can move the areas around or edit them by clicking on them and moving its vertices. Click on the map to deselect the areas." %}
         </p>
       </div>
-      <div class="col-md-4">
-        <p>
-          {% trans "Draw a polygon and its vertices' coordinates will show up here" %}
-        </p>
-      </div>
+      <div class="col-md-4"></div>
       <div id="map" class="col-md-8"></div>
       <div id="toolbar" class="col-md-4">
         <div class="row">
-          <div id="info" class="col-md-6">
+          <div class="col-md-6">
+            <div>{% trans "Latitude" %} | {% trans "Longitude" %}</div>
+            <div id="info">
+              <p>
+                {% trans "Draw a polygon and its vertices' coordinates will show up here" %}
+              </p>
+            </div>
           </div>
           <div class="col-md-6">
             <button class="btn btn-primary btn-block" disabled="disabled" id="save-button">{% trans "Save service area" %}</button>
             <button class="btn btn-danger btn-block" disabled="disabled" id="delete-button">{% trans "Delete service area" %}</button>
+          </div>
+          <div class="col-md-12">
+            <h3>
+              {% trans "Latest service areas" %}
+            </h3>
           </div>
         </div>
       </div>

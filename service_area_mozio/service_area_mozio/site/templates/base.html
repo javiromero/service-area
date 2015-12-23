@@ -16,7 +16,10 @@
         </div>
         <div id="navbar" class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
-            <li><a href="{% url 'home' %}">home</a></li>
+            {% url 'home' as home_url %}
+            <li {% if request.path = home_url %}class="active"{% endif %}>
+                <a href="{{ home_url }}">home</a>
+            </li>
             {% url 'service_area' as service_area_url %}
             <li {% if request.path = service_area_url %}class="active"{% endif %}>
                 <a href="{{ service_area_url }}">service areas</a>
