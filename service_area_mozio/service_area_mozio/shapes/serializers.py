@@ -2,8 +2,8 @@
 from io import StringIO
 from django.db.models import Model
 from django.db.models.query import QuerySet
-from django.utils.encoding import smart_unicode
-from django.utils.simplejson import dumps
+from django.utils.encoding import smart_text
+from json import dumps
 
 
 class UnableToSerializeError(Exception):
@@ -44,7 +44,7 @@ class JSONSerializer():
 
     def get_string_value(self, obj, field):
         """Convert a field's value to a string."""
-        return smart_unicode(field.value_to_string(obj))
+        return smart_text(field.value_to_string(obj))
 
     def start_serialization(self):
         """Called when serializing of the queryset starts."""
@@ -85,28 +85,30 @@ class JSONSerializer():
         elif any((
                 isinstance(object, int),
                 isinstance(object, float),
-                isinstance(object, long),
         )):
             self.handle_simple(object)
-        elif isinstance(object, basestring):
+        elif any((
+                isinstance(object, str),
+                isinstance(object, bytes),
+        )):
             self.handle_simple(object)
         else:
             raise UnableToSerializeError(type(object))
 
-    def handle_dictionary(self, d):
+    def handle_dictionary(self, dict_):
         """Called to handle a Dictionary"""
         i = 0
         self.start_object()
-        for key, value in d.iteritems():
-            self.currentLoc += key+'.'
-            # self.stream.write(unicode(self.currentLoc))
+        for key, value in dict_.items():
+            self.currentLoc += key + '.'
+            # self.stream.write(str(self.currentLoc))
             i += 1
             self.handle_simple(key)
             self.stream.write(u': ')
             self.handle_object(value)
-            if i != len(d):
+            if i != len(dict_):
                 self.stream.write(u', ')
-            self.currentLoc = self.currentLoc[0:(len(self.currentLoc)-len(key)-1)]
+            self.currentLoc = self.currentLoc[0:(len(self.currentLoc) - len(key) - 1)]
         self.end_object()
 
     def handle_list(self, l):
@@ -245,11 +247,11 @@ class JSONSerializer():
         ):
             self.handle_none(simple)
         else:
-            self.stream.write(unicode(dumps(simple)))
+            self.stream.write(str(dumps(simple)))
 
     def handle_none(self, none):
         """ Called to handle None values """
-        self.stream.write(unicode(''))
+        self.stream.write(str(''))
 
     def getvalue(self):
         """Return the fully serialized object or None"""
