@@ -239,8 +239,10 @@ class JSONSerializer():
 
     def handle_simple(self, simple):
         """ Called to handle values that can be handled via simplejson """
-        if simple in ('', 'none', 'None', 'NONE',
-                      u'', u'none', u'None', u'NONE'):
+        if simple in (
+            '', 'none', 'None', 'NONE',
+            u'', u'none', u'None', u'NONE',
+        ):
             self.handle_none(simple)
         else:
             self.stream.write(unicode(dumps(simple)))
