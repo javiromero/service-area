@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}Contains Location{% endblock %}
+
+{% block content %}
+    <div class="row">
+      <div class="col-md-12">
+        <p>
+          {% trans "Select the service areas you would like to test and click on the map." %}
+        </p>
+      </div>
+      <div id="map" class="col-md-8"></div>
+      <div id="toolbar" class="col-md-4">
+        <div class="row">
+          <div class="col-md-12">
+            <h3>
+              {% trans "Latest service areas" %}
+            </h3>
+            <div>
+              <ul id="latest-areas" class="list-unstyled"></ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+{% endblock %}
+
+
+{% block bootstrap3_extra_script %}
+{% include "scripts.html" %}
+<script type="text/javascript">
+function initMap() {
+  map = new google.maps.Map(document.getElementById('map'), {
+    center: {lat: -34.397, lng: 150.644},
+    zoom: 8
+  });
+
+  google.maps.event.addListener(map, 'click', function(e) {
+    var checkedAreas = $('#latest-areas .checkbox-area:checked');
+    var bound = false;
+    $.each(checkedAreas, function(index, value){
+        var areaId = $(value).val();
+        area = savedShapes[areaId];
+        bound = google.maps.geometry.poly.containsLocation(e.latLng, area)
+        if ( bound )
+            return false;
+    });
+    var resultColor = bound ? 'green' : 'red';
+
+    new google.maps.Marker({
+      position: e.latLng,
+      map: map,
+      icon: {
+        path: google.maps.SymbolPath.CIRCLE,
+        fillColor: resultColor,
+        fillOpacity: 0.35,
+        strokeColor: 'white',
+        strokeWeight: .5,
+        scale: 10
+      }
+    });
+  });
+}
+
+function renderSavedArea(event, object){
+  // Define the LatLng coordinates for the polygon.
+  var areaCoords = new Array();
+  $.each(object.vertices, function(index, value){
+    areaCoords.push({lat: parseFloat(value.lat), lng: parseFloat(value.lon)});
+  });
+
+  // Construct the polygon.
+  var area = new google.maps.Polygon({
+    paths: areaCoords,
+    fillOpacity: 0.35,
+    clickable: false,
+    draggable: false,
+    editable: false,
+    zIndex: 1,
+    geodesic: true
+  });
+
+  if ( $(event.target).is(':checked') ){
+    savedShapes[object.id] = area;
+    area.setMap(map);
+  } else {
+    area = savedShapes[$(event.target).val()];
+    selectedShape = area;
+  }
+}
+</script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCG-m2MOrO0REyi3pZjsuKfcFOfrcTOXEQ&signed_in=true&libraries=drawing&callback=initMap"
+         async defer></script>
+{% endblock %}
