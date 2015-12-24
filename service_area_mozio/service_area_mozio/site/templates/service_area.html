@@ -21,7 +21,9 @@
               {% trans "Latest service areas" %}
             </h3>
             <div>
-              <ul id="latest-areas" class="list-unstyled"></ul>
+              <ul id="latest-areas" class="list-unstyled">
+                <li>{% trans "There are no saved areas" %}</li>
+              </ul>
             </div>
           </div>
           <div class="col-md-12">
@@ -60,66 +62,8 @@
 {% endblock %}
 
 {% block bootstrap3_extra_script %}
-<script>
-var map;
-var selectedShape;
-var savedShapes = {};
-
-function clearSelection() {
-  if (selectedShape) {
-    selectedShape.setEditable(false);
-    selectedShape = null;
-  }
-  // Direct DOM manipulation examples
-  document.getElementById('info').innerHTML = ''+
-    '<tr>'+
-      '<td colspan="2">'+
-        '{% trans "Select or Draw a polygon and its vertices coordinates will show up here" %}'+
-      '</td>'+
-    '</tr>';
-  document.getElementById('save-button').setAttribute('disabled', 'disabled');
-  document.getElementById('delete-button').setAttribute('disabled', 'disabled');
-}
-
-function setSelection(shape) {
-  clearSelection();
-  selectedShape = shape;
-  shape.setEditable(true);
-  drawPolygonCoords(shape);
-  document.getElementById('save-button').removeAttribute('disabled');
-  document.getElementById('delete-button').removeAttribute('disabled');
-}
-
-function deleteSelectedShape() {
-  if (selectedShape) {
-    selectedShape.setMap(null);
-  }
-}
-
-function getPolygonCoordsList(shape) {
-    var len = shape.getPath().getLength();
-    var coordArray = new Array();
-    for (var i = 0; i < len; i++) {
-        coordArray.push(shape.getPath().getAt(i).toUrlValue(5));
-    }
-    return coordArray;
-}
-
-function getPolygonCoords(shape) {
-    var len = shape.getPath().getLength();
-    var htmlStr = "";
-    for (var i = 0; i < len; i++) {
-      coords = shape.getPath().getAt(i).toJSON();
-      htmlStr += '<tr><td>'+coords.lat+'</td><td>'+coords.lng+'</td></tr>';
-    }
-    return htmlStr;
-}
-
-function drawPolygonCoords(shape) {
-  htmlStr = getPolygonCoords(shape);
-  document.getElementById('info').innerHTML = htmlStr;
-
-}
+{% include "scripts.html" %}
+<script type="text/javascript">
 
 function initMap() {
   map = new google.maps.Map(document.getElementById('map'), {
@@ -171,124 +115,6 @@ function initMap() {
   google.maps.event.addListener(map, 'click', clearSelection);
 }
 
-Array.prototype.containsSubString = function( text ){
-    for ( var i = 0; i < this.length; ++i )
-    {
-        if ( this[i].toString().indexOf( text ) != -1 )
-            return i;
-    }
-    return -1;
-}
-
-function getSelectedShapeName(){
-  {% comment %}
-  // I though closure_uid was unique to each shape but its not,
-  // so just return a random name...
-  var properties = [i for(i in selectedShape)];
-  var index = properties.containsSubString('closure_uid');
-  var name = properties[index];
-  {% endcomment %}
-  name = Math.random().toString(36).substring(7);
-  return name;
-}
-
-function saveSelection(){
-  var urlCreate = "{% url 'shapes:create' %}";
-  var shape = {
-    'name': getSelectedShapeName(),
-    'vertices': getPolygonCoordsList(selectedShape)
-  };
-  $.post(urlCreate, shape)
-    .success(function(data){
-      // console.log(data);
-      $('#notifications').append(
-        '<div id="alert-shape" class="alert alert-info">'+
-          '<button type="button" class="close" data-dismiss="alert">&times;</button>'+
-          '<strong>'+data+'</strong>'+
-        '</div>'
-      );
-      $("#alert-shape").fadeOut(5000, function(){
-        this.remove();
-      });
-      deleteSelectedShape();
-      getSavedAreas();
-    })
-    .fail(function(data){
-      console.log(data);
-      $('#notifications').append(
-        '<div id="alert-shape" class="alert alert-danger">'+
-          '<button type="button" class="close" data-dismiss="alert">&times;</button>'+
-          '<strong>'+data.responseText+'</strong>'+
-        '</div>'
-      );
-    });
-}
-$('#save-button').on('click', saveSelection);
-
-function deleteSelection(){
-  deleteSelectedShape();
-  clearSelection();
-  // Check if the selecte shape is a saved one and remove it
-  var checkedAreas = $('#latest-areas .checkbox-area:checked')
-  $.each(checkedAreas, function(index, value){
-    console.log(value);
-    var areaId = $(value).val();
-    if ( saveSelection[areaId] == selectedShape ){
-      var urlDelete = '/shapes/delete/'+areaId+'/';
-      $.post(urlDelete)
-      .success(function(data){
-        getSavedAreas();
-      })
-      .fail(function(data){
-        console.error("fail!");
-      });
-    }
-  });
-}
-$('#delete-button').on('click', deleteSelection);
-
-function getSavedAreas(){
-  $.each($('#latest-areas .checkbox-area'), function(){
-    // Deselect checked areas
-    if ( $(this).is(':checked') ){
-      $(this).trigger('click');
-    }
-    // Unbind, have to match the signature used on binding
-    var id = $(this).val();
-    $('#latest-areas').off('click', '#area-'+id);
-  });
-  savedShapes = {};
-  var urlList = "{% url 'shapes:list' %}";
-  $.getJSON(urlList)
-    .success(function(data){
-      drawSavedAreas(data);
-    })
-    .fail(function(data){
-      console.error("fail!");
-    });
-}
-
-function drawSavedAreas(object){
-  var htmlStr = "";
-  $.each(object, function(index, value){
-    var id = value.id;
-    var date = new Date(value.date_created);
-    htmlStr += ''+
-      '<li>'+
-        '<div class="checkbox">'+
-          '<label>'+
-            '<input type="checkbox" id="area-'+id+'" value="'+value.id+'" class="checkbox-area"> '+
-              date.toLocaleString()+' '+value.name+
-            '</label>'+
-        '</div>'+
-      '</li>'
-    $('#latest-areas').on('click', '#area-'+id, function(event){
-      renderSavedArea(event, value);
-    });
-  });
-  $('#latest-areas').fadeOut('fast', function(){ $(this).html(htmlStr) }).fadeIn('fast');
-}
-
 function renderSavedArea(event, object){
   // Define the LatLng coordinates for the polygon.
   var areaCoords = new Array();
@@ -337,39 +163,6 @@ function renderSavedArea(event, object){
   }
 }
 
-// using jQuery
-function getCookie(name) {
-    var cookieValue = null;
-    if (document.cookie && document.cookie != '') {
-        var cookies = document.cookie.split(';');
-        for (var i = 0; i < cookies.length; i++) {
-            var cookie = jQuery.trim(cookies[i]);
-            // Does this cookie string begin with the name we want?
-            if (cookie.substring(0, name.length + 1) == (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
-}
-var csrftoken = getCookie('csrftoken');
-
-function csrfSafeMethod(method) {
-    // these HTTP methods do not require CSRF protection
-    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-}
-$.ajaxSetup({
-    beforeSend: function(xhr, settings) {
-        if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
-            xhr.setRequestHeader("X-CSRFToken", csrftoken);
-        }
-    }
-});
-
-$(document).ready(function(){
-  getSavedAreas();
-});
 </script>
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCG-m2MOrO0REyi3pZjsuKfcFOfrcTOXEQ&signed_in=true&libraries=drawing&callback=initMap"
          async defer></script>
