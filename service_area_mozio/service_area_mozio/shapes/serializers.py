@@ -31,6 +31,7 @@ class JSONSerializer():
         self.selectedFields = options.pop("fields", None)
         self.ignoredFields = options.pop("ignored", None)
         self.use_natural_keys = options.pop("use_natural_keys", False)
+        self.relations = options.pop("relations", None)
         self.currentLoc = ''
 
         self.level = 0
@@ -95,6 +96,19 @@ class JSONSerializer():
         else:
             raise UnableToSerializeError(type(object))
 
+    def handle_relations(self, object):
+        """Handle specified reverse relations"""
+        for each in self.relations:
+            try:
+                relation = getattr(object, each)
+            except AttributeError:
+                pass
+            else:
+                self.stream.write(u', ')
+                self.handle_simple(each)
+                self.stream.write(u': ')
+                self.handle_object(relation.all())
+
     def handle_dictionary(self, dict_):
         """Called to handle a Dictionary"""
         i = 0
@@ -140,6 +154,7 @@ class JSONSerializer():
                 if self.ignoredFields is None or self.currentLoc + field.attname not in self.ignoredFields:
                     self.handle_m2m_field(mod, field)
         self.stream.seek(self.stream.tell()-2)
+        self.handle_relations(mod)
         self.end_object()
 
     def handle_queryset(self, queryset):

@@ -34,7 +34,11 @@ class PolygonListView(JSONjQueryResponseMixin, ListView):
         """Check format and reply accordingly in json or html"""
         if self.request.is_ajax():
             object_list = context['object_list']
-            json_response = self.render_to_json_response(object_list)
+            relations = ('vertices',)
+            json_response = self.render_to_json_response(
+                object_list,
+                relations=relations,
+            )
             return json_response
         else:
             return super(PolygonListView, self).render_to_response(context)

@@ -15,15 +15,18 @@ class JSONResponseMixin(object):
     def render_to_json_response(self, context, **response_kwargs):
         """Returns a JSON response containing 'context' as payload"""
         return HttpResponse(
-            self.convert_context_to_json(context),
+            self.convert_context_to_json(context, **response_kwargs),
             content_type='application/json',
         )
 
-    def convert_context_to_json(self, context):
+    def convert_context_to_json(self, context, **kwargs):
         """Serialize the object, transform it into a dictionary and add the
         rendered text, then back into a json formatted string"""
         jsonSerializer = serializers.JSONSerializer()
-        s_context = jsonSerializer.serialize(context, use_natural_keys=True)
+        s_context = jsonSerializer.serialize(
+            context,
+            use_natural_keys=True,
+            **kwargs)
         return s_context
 
 
@@ -33,7 +36,10 @@ class JSONjQueryResponseMixin(JSONResponseMixin):
     Modify serializer to return null values on None
     """
 
-    def convert_context_to_json(self, context):
+    def convert_context_to_json(self, context, **kwargs):
         jsonSerializer = serializers.JSONjQuerySerializer()
-        s_context = jsonSerializer.serialize(context, use_natural_keys=True)
+        s_context = jsonSerializer.serialize(
+            context,
+            use_natural_keys=True,
+            **kwargs)
         return s_context
