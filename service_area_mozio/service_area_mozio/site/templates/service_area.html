@@ -197,6 +197,7 @@ function saveSelection(){
       $("#alert-shape").fadeOut(5000, function(){
         this.remove();
       });
+      getSavedAreas();
     })
     .fail(function(data){
       console.log(data);
@@ -216,12 +217,24 @@ function deleteSelection(){
 }
 $('#delete-button').on('click', deleteSelection);
 
+function getSavedAreas(){
+  var urlList = "{% url 'shapes:list' %}";
+  $.getJSON(urlList)
+    .success(function(data){
+      drawSavedAreas(data);
+    })
+    .fail(function(data){
+      console.error("fail!");
+    });
+}
+
 function drawSavedAreas(object){
+  var htmlStr = "";
   $.each(object, function(index, value){
     console.log(value);
     var id = value.id;
     var date = new Date(value.date_created);
-    $('#latest-areas').append(
+    htmlStr += ''+
       '<li>'+
         '<div class="checkbox">'+
           '<label>'+
@@ -230,11 +243,11 @@ function drawSavedAreas(object){
             '</label>'+
         '</div>'+
       '</li>'
-    );
-    $('#area-'+id).on('click', function(event){
+    $('#latest-areas').on('click', '#area-'+id, function(event){
       renderSavedArea(event, value);
     });
   });
+  $('#latest-areas').fadeOut('fast', function(){ $(this).html(htmlStr) }).fadeIn('fast');
 }
 
 function renderSavedArea(event, object){
@@ -260,21 +273,30 @@ function renderSavedArea(event, object){
   // area.setMap(map);
   if ( $(event.target).is(':checked') ){
     area.setMap(map);
+
+    google.maps.event.addListener(area, 'click', function() {
+      setSelection(area);
+    });
     setSelection(area);
+    // Get movements of the shape
+    google.maps.event.addListener(area, 'drag', function(e) {
+      drawPolygonCoords(area);
+    });
+    // Get changes on the shape when "shrinking"
+    google.maps.event.addListener(area.getPath(), 'set_at', function(e) {
+      drawPolygonCoords(area);
+    });
+    // and when "growing"
+    google.maps.event.addListener(area.getPath(), 'insert_at', function(e) {
+      drawPolygonCoords(area);
+    });
   } else {
     area.setMap(null);
   }
 }
 
 $(document).ready(function(){
-  var urlList = "{% url 'shapes:list' %}";
-  $.getJSON(urlList)
-    .success(function(data){
-      drawSavedAreas(data);
-    })
-    .fail(function(data){
-      console.error("fail!");
-    });
+  getSavedAreas();
 });
 </script>
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCG-m2MOrO0REyi3pZjsuKfcFOfrcTOXEQ&signed_in=true&libraries=drawing&callback=initMap"
