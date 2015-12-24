@@ -18,24 +18,23 @@ from service_area_mozio.shapes.models import (
     Polygon,
     Vertex,
 )
-from service_area_mozio.shapes.mixins import JSONResponseMixin
+from service_area_mozio.shapes.mixins import JSONjQueryResponseMixin
 
 
-class PolygonListView(JSONResponseMixin, ListView):
+class PolygonListView(JSONjQueryResponseMixin, ListView):
 
     """List all valid registered polygons
 
     Used a class based view here to show it's usage with models and mixins"""
     model = Polygon
+    queryset = Polygon.objects.select_related()
     paginate_by = 5
 
     def render_to_response(self, context):
         """Check format and reply accordingly in json or html"""
         if self.request.is_ajax():
-            json_response = self.render_to_json_response(
-                context['object_list'],
-                safe=False,
-            )
+            object_list = context['object_list']
+            json_response = self.render_to_json_response(object_list)
             return json_response
         else:
             return super(PolygonListView, self).render_to_response(context)
