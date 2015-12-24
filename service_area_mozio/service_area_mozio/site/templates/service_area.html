@@ -178,9 +178,14 @@ Array.prototype.containsSubString = function( text ){
 }
 
 function getSelectedShapeName(){
+  {% comment %}
+  // I though closure_uid was unique to each shape but its not,
+  // so just return a random name...
   var properties = [i for(i in selectedShape)];
   var index = properties.containsSubString('closure_uid');
   var name = properties[index];
+  {% endcomment %}
+  name = Math.random().toString(36).substring(7);
   return name;
 }
 
@@ -192,7 +197,7 @@ function saveSelection(){
   };
   $.post(urlCreate, shape)
     .success(function(data){
-      console.log(data);
+      // console.log(data);
       $('#notifications').append(
         '<div id="alert-shape" class="alert alert-info">'+
           '<button type="button" class="close" data-dismiss="alert">&times;</button>'+
@@ -202,6 +207,7 @@ function saveSelection(){
       $("#alert-shape").fadeOut(5000, function(){
         this.remove();
       });
+      deleteSelectedShape();
       getSavedAreas();
     })
     .fail(function(data){
@@ -224,6 +230,11 @@ $('#delete-button').on('click', deleteSelection);
 
 function getSavedAreas(){
   $.each($('#latest-areas .checkbox-area'), function(){
+    // Deselect checked areas
+    if ( $(this).is(':checked') ){
+      $(this).trigger('click');
+    }
+    // Unbind, have to match the signature used on binding
     var id = $(this).val();
     $('#latest-areas').off('click', '#area-'+id);
   });
