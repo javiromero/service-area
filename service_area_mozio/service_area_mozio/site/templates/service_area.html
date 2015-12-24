@@ -223,6 +223,11 @@ function deleteSelection(){
 $('#delete-button').on('click', deleteSelection);
 
 function getSavedAreas(){
+  $.each($('#latest-areas .checkbox-area'), function(){
+    var id = $(this).val();
+    $('#latest-areas').off('click', '#area-'+id);
+  });
+  savedShapes = {};
   var urlList = "{% url 'shapes:list' %}";
   $.getJSON(urlList)
     .success(function(data){
