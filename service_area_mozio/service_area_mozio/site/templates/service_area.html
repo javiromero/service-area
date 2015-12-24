@@ -17,6 +17,17 @@
       <div id="toolbar" class="col-md-4">
         <div class="row">
           <div class="col-md-12">
+            <h3>
+              {% trans "Latest service areas" %}
+            </h3>
+            <div>
+              <ul id="latest-areas" class="list-unstyled"></ul>
+            </div>
+          </div>
+          <div class="col-md-12">
+            <h3>
+              {% trans "Coordinates" %}
+            </h3>
             <table id="" class="table table-striped">
               <thead>
                 <tr>
@@ -41,14 +52,6 @@
             </div>
             <div class="col-md-6">
               <button class="btn btn-danger btn-block" disabled="disabled" id="delete-button">{% trans "Delete service area" %}</button>
-            </div>
-          </div>
-          <div class="col-md-12">
-            <h3>
-              {% trans "Latest service areas" %}
-            </h3>
-            <div>
-              <ul id="latest-areas" class="list-unstyled"></ul>
             </div>
           </div>
         </div>
