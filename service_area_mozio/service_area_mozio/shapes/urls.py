@@ -14,4 +14,9 @@ urlpatterns = [
         view=views.create_polygon,
         name='create',
     ),
+    url(
+        r'^delete/(?P<pk>[\w]+)/$$',
+        view=views.PolygonDeleteView.as_view(),
+        name='delete',
+    ),
 ]

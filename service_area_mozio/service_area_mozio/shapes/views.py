@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import json
+from django.core.urlresolvers import reverse_lazy
 from django.shortcuts import render
 from django.http import (
     HttpResponse,
@@ -42,6 +43,14 @@ class PolygonListView(JSONjQueryResponseMixin, ListView):
             return json_response
         else:
             return super(PolygonListView, self).render_to_response(context)
+
+
+class PolygonDeleteView(DeleteView):
+
+    """Delete a stored polygon"""
+    model = Polygon
+    success_message = _(u'Deleted Successfully')
+    success_url = reverse_lazy('shapes:list')
 
 
 @csrf_exempt

@@ -62,3 +62,21 @@ class PolygonTestCase(TestCase):
         )
         post_count = Polygon.objects.all().count()
         self.assertGreater(post_count, pre_count)
+
+    def test_polygon_view_delete(self):
+        """Test the delete polygon view"""
+        triangle = Polygon.objects.create(name='triangle')
+        Vertex.objects.create(lat=1, lon=1, polygon=triangle)
+        Vertex.objects.create(lat=2, lon=2, polygon=triangle)
+        Vertex.objects.create(lat=3, lon=3, polygon=triangle)
+
+        pre_count = Polygon.objects.all().count()
+        client = Client()
+        response = client.post(
+            '/shapes/delete/%s' % triangle.id,
+            {
+                'submit': 'delete',
+            }
+        )
+        post_count = Polygon.objects.all().count()
+        self.assertLess(post_count, pre_count)
