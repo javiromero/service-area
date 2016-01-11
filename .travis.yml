@@ -5,4 +5,4 @@ python:
   - 3.4
   - 3.5
 install: "pip install -r requirements/prod.txt"
-script: python -m unittest discover
+script: python -m unittest discover -s service_area_mozio
