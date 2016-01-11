@@ -9,7 +9,8 @@ install:
   - pip install pep8 --use-mirrors
   - pip install pyflakes --use-mirrors
 before_script:
-  - "pep8 --exclude=migrations --ignore=E501,E225 service_area_mozio"
-  - pyflakes service_area_mozio
+  # - "pep8 --exclude=migrations --ignore=E501,E225 service_area_mozio"
+  # - pyflakes service_area_mozio
+  - python manage.py migrate
 script:
-  - python -m unittest discover -s service_area_mozio
+  - python manage.py test
