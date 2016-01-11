@@ -4,5 +4,12 @@ python:
   - 3.3
   - 3.4
   - 3.5
-install: "pip install -r requirements/prod.txt"
-script: python -m unittest discover -s service_area_mozio
+install:
+  - pip install -r requirements/prod.txt
+  - pip install pep8 --use-mirrors
+  - pip install https://github.com/dcramer/pyflakes/tarball/master
+before_script:
+  - "pep8 --exclude=migrations --ignore=E501,E225 src"
+  - pyflakes -x W src
+script:
+  - python -m unittest discover -s service_area_mozio
