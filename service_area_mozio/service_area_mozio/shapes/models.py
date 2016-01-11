@@ -26,7 +26,7 @@ class Polygon(models.Model):
 
     @property
     def sides(self):
-        return self.vertices.count(
+        return self.vertices.count()
 
     def __str__(self):
         str_ = ''
