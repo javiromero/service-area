@@ -11,6 +11,6 @@ install:
 before_script:
   # - "pep8 --exclude=migrations --ignore=E501,E225 service_area_mozio"
   # - pyflakes service_area_mozio
-  - python manage.py migrate
+  - python service_area_mozio/manage.py migrate
 script:
-  - python manage.py test
+  - python service_area_mozio/manage.py test service_area_mozio
