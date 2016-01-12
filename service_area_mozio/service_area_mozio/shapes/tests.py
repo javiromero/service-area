@@ -65,7 +65,7 @@ class PolygonTestCase(TestCase):
 
     def test_polygon_view_delete(self):
         """Test the delete polygon view"""
-        triangle = Polygon.objects.create(name='triangle')
+        triangle = Polygon.objects.create(name='triangle2')
         Vertex.objects.create(lat=1, lon=1, polygon=triangle)
         Vertex.objects.create(lat=2, lon=2, polygon=triangle)
         Vertex.objects.create(lat=3, lon=3, polygon=triangle)
