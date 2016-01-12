@@ -4,6 +4,8 @@ python:
   - 3.3
   - 3.4
   - 3.5
+env:
+  - DJANGO_SETTINGS_MODULE=service_area_mozio.settings.prod
 install:
   - pip install -r requirements/prod.txt
   - pip install pep8 --use-mirrors
